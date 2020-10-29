@@ -6,6 +6,7 @@ import { RestaurantService } from './restaurants.service';
 
 @Resolver(() => Restaurant)
 export class RestaurantResolver {
+
   constructor(private readonly restaurantService: RestaurantService) {}
 
   @Query(() => [Restaurant])
@@ -14,15 +15,10 @@ export class RestaurantResolver {
   }
 
   @Mutation(() => Boolean)
-  async createRestaurant(
+  createRestaurant(
     @Args() createRestaurantDto: CreateRestaurantDto,
-  ): Promise<boolean> {
-    try {
-      await this.restaurantService.createRestaurant(createRestaurantDto);
-      return true;
-    } catch (e) {
-      console.error(e);
-      return false;
-    }
+  ): boolean {
+    console.log(createRestaurantDto);
+    return true;
   }
 }
