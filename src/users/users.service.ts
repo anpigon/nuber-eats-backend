@@ -11,25 +11,18 @@ export class UsersService {
     @InjectRepository(User) private readonly users: Repository<User>,
   ) {}
 
-  async createAccount(createAccountInput: CreateAccountInput) {
+  async createAccount(
+    createAccountInput: CreateAccountInput,
+  ): Promise<string | undefined> {
     const { email, password, role } = createAccountInput;
     try {
       const exists = await this.users.findOne({ email });
       if (exists) {
-        // make error
-        return;
+        return 'There is a user with that email already';
       }
-      await this.users.save(
-        this.users.create({
-          email,
-          password,
-          role,
-        }),
-      );
-      return true;
+      await this.users.save(this.users.create({ email, password, role }));
     } catch (e) {
-      // make error
-      return;
+      return "Couldn't crate account";
     }
   }
 }
