@@ -90,4 +90,19 @@ export class UsersService {
     }
     return this.users.save(user);
   }
+
+  async verifyEmail(code: string): Promise<boolean> {
+    const verification = await this.verification.findOne(
+      { code },
+      {
+        // loadRelationIds: true, # userId 만 가져오려면...
+        relations: ['user'],
+      },
+    );
+    if (verification) {
+      verification.user.verified = true;
+      this.users.save(verification.user);
+    }
+    return true;
+  }
 }
