@@ -121,10 +121,9 @@ export class UsersService {
         await this.verification.delete(verification.id);
         return { ok: true };
       }
-      return { ok: false };
+      return { ok: false, error: 'Verification not found.' };
     } catch (error) {
-      console.error(error);
-      return { ok: false, error };
+      return { ok: false, error: 'Could not verify email.' };
     }
   }
 }
