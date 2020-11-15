@@ -1,6 +1,15 @@
 import { Test } from '@nestjs/testing';
 import { CONFIG_OPTIONS } from 'src/common/common.constants';
 import { MailService } from './mail.service';
+import * as mailgun from 'mailgun-js';
+
+jest.mock('mailgun-js', () => {
+  const mMailgun = {
+    messages: jest.fn().mockReturnThis(),
+    send: jest.fn(),
+  };
+  return jest.fn(() => mMailgun);
+});
 
 describe('MailService', () => {
   let service: MailService;
@@ -52,5 +61,30 @@ describe('MailService', () => {
     });
   });
 
-  it.todo('sendMail');
+  describe('sendMail', () => {
+    it('send email', async () => {
+      const ok = await service.sendMail('', '', '', {});
+
+      expect(mailgun).toHaveBeenCalledTimes(1);
+      expect(mailgun).toHaveBeenCalledWith({
+        apiKey: 'test-apiKey',
+        domain: 'test-domain',
+      });
+
+      expect(mailgun({} as any).messages).toHaveBeenCalledTimes(1);
+      expect(mailgun({} as any).messages().send).toHaveBeenCalledTimes(1);
+      expect(mailgun({} as any).messages().send).toBeCalledWith(
+        expect.any(Object),
+      );
+      expect(ok).toBeTruthy();
+    });
+
+    it('fails on error', async () => {
+      jest.spyOn(mailgun({} as any), 'messages').mockImplementation(() => {
+        throw new Error();
+      });
+      const ok = await service.sendMail('', '', '', {});
+      expect(ok).toBeFalsy();
+    });
+  });
 });
