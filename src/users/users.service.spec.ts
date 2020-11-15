@@ -14,7 +14,7 @@ const mockUserRepository = () => ({
 });
 
 const mokeJwtService = {
-  sign: jest.fn(),
+  sign: jest.fn(() => 'signed-token-baby'),
   verify: jest.fn(),
 };
 
@@ -29,8 +29,9 @@ describe('UserService', () => {
   let usersRepository: MockRepository<User>;
   let verificationsRepository: MockRepository<Verification>;
   let mailService: MailService;
+  let jwtService: JwtService;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const modules = await Test.createTestingModule({
       providers: [
         UsersService,
@@ -54,6 +55,7 @@ describe('UserService', () => {
     }).compile();
     service = modules.get<UsersService>(UsersService);
     mailService = modules.get(MailService);
+    jwtService = modules.get(JwtService);
     usersRepository = modules.get(getRepositoryToken(User));
     verificationsRepository = modules.get(getRepositoryToken(Verification));
   });
@@ -128,6 +130,7 @@ describe('UserService', () => {
       email: 'bs@email.com',
       password: 'bs.password',
     };
+
     it('should fail if user does not exist', async () => {
       usersRepository.findOne.mockResolvedValue(null);
 
@@ -139,6 +142,28 @@ describe('UserService', () => {
         expect.any(Object),
       );
       expect(result).toEqual({ ok: false, error: 'User not found' });
+    });
+
+    it('should fail if the password is wrong', async () => {
+      const mockedUser = {
+        id: 1,
+        checkPassword: jest.fn(() => Promise.resolve(false)),
+      };
+      usersRepository.findOne.mockResolvedValue(mockedUser);
+      const result = await service.login(loginArgs);
+      expect(result).toEqual({ ok: false, error: 'Wrong password' });
+    });
+
+    it('should return if password correct', async () => {
+      const mockedUser = {
+        id: 1,
+        checkPassword: jest.fn(() => Promise.resolve(true)),
+      };
+      usersRepository.findOne.mockResolvedValue(mockedUser);
+      const result = await service.login(loginArgs);
+      expect(jwtService.sign).toHaveBeenCalledTimes(1);
+      expect(jwtService.sign).toHaveBeenCalledWith(expect.any(Number));
+      expect(result).toEqual({ ok: true, token: 'signed-token-baby' });
     });
   });
 
