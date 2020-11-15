@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CONFIG_OPTIONS } from 'src/common/common.contants';
+import { CONFIG_OPTIONS } from 'src/common/common.constants';
 import { EmailVars, MailModuleInterface } from './mail.interfaces';
 import * as mailgun from 'mailgun-js';
 

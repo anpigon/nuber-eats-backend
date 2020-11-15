@@ -7,11 +7,11 @@ import { User } from './entities/user.entity';
 import { Verification } from './entities/verification.entity';
 import { UsersService } from './users.service';
 
-const mockUserRepository = {
+const mockUserRepository = () => ({
   findOne: jest.fn(),
   save: jest.fn(),
   create: jest.fn(),
-};
+});
 
 const mokeJwtService = {
   sign: jest.fn(),
@@ -34,11 +34,11 @@ describe('UserService', () => {
         UsersService,
         {
           provide: getRepositoryToken(User),
-          useValue: mockUserRepository,
+          useValue: mockUserRepository(),
         },
         {
           provide: getRepositoryToken(Verification),
-          useValue: mockUserRepository,
+          useValue: mockUserRepository(),
         },
         {
           provide: JwtService,
@@ -61,20 +61,30 @@ describe('UserService', () => {
   });
 
   describe('createAccount', () => {
+    const createAccountArgs = {
+      email: 'lalalal@nubereats.com',
+      password: '123456',
+      role: 0,
+    };
     it('should fail if user exists', async () => {
       usersRepository.findOne.mockResolvedValue({
         id: 1,
         email: 'lalalal@nubereats.com',
       });
-      const results = await service.createAccount({
-        email: 'lalalal@nubereats.com',
-        password: '123456',
-        role: 0,
-      });
+      const results = await service.createAccount(createAccountArgs);
       expect(results).toMatchObject({
         ok: false,
         error: 'There is a user with that email already',
       });
+    });
+    it('should create a new user', async () => {
+      usersRepository.findOne.mockReturnValue(undefined);
+      usersRepository.create.mockReturnValue(createAccountArgs)
+      await service.createAccount(createAccountArgs);
+      expect(usersRepository.create).toHaveBeenCalledTimes(1);
+      expect(usersRepository.create).toHaveBeenCalledWith(createAccountArgs)
+      expect(usersRepository.save).toHaveBeenCalledTimes(1)
+      expect(usersRepository.save).toHaveBeenCalledWith(createAccountArgs)
     });
   });
 
