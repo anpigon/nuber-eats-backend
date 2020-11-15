@@ -27,10 +27,10 @@ export class MailService {
         apiKey: this.options.apiKey,
         domain: this.options.domain,
       });
-      const response = await mg.messages().send(data);
-      console.log(response);
+      await mg.messages().send(data);
+      return true;
     } catch (error) {
-      console.error(error);
+      return false;
     }
   }
 
