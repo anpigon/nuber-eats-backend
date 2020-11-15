@@ -25,4 +25,7 @@ describe('JwtService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  it.todo('sign')
+  it.todo('verify')
 });
