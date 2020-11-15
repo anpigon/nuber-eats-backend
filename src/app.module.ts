@@ -24,7 +24,7 @@ import { MailModule } from './mail/mail.module';
       ignoreEnvFile: process.env.NODE_ENV === 'prod',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
-          .valid('dev', 'prod')
+          .valid('dev', 'prod', 'test')
           .default('dev'),
         PORT: Joi.number().default(3000),
         DB_HOST: Joi.string().required(),
