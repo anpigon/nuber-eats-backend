@@ -14,8 +14,14 @@ jest.mock('mailgun-js', () => {
 
 const GRAPHQL_ENDPOINT = '/graphql';
 
+const testUser = {
+  email: 'newuser@email.com',
+  password: '111111',
+};
+
 describe('UserModule (e2e)', () => {
   let app: INestApplication;
+  let token: string;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -31,8 +37,6 @@ describe('UserModule (e2e)', () => {
   });
 
   describe('createAccount', () => {
-    const EMAIL = 'newuser@email.com';
-    
     it('should create account', () => {
       return request(app.getHttpServer())
         .post(GRAPHQL_ENDPOINT)
@@ -40,8 +44,8 @@ describe('UserModule (e2e)', () => {
           query: `
             mutation {
               createAccount(input: {
-                email:"${EMAIL}",
-                password:"111111",
+                email:"${testUser.email}",
+                password:"${testUser.password}",
                 role:Owner
               }) {
                 ok
@@ -65,8 +69,8 @@ describe('UserModule (e2e)', () => {
           query: `
             mutation {
               createAccount(input: {
-                email:"${EMAIL}",
-                password:"111111",
+                email:"${testUser.email}",
+                password:"${testUser.password}",
                 role:Owner
               }) {
                 ok
@@ -85,8 +89,70 @@ describe('UserModule (e2e)', () => {
     });
   });
 
+  describe('login', () => {
+    it('should login with correct credentials', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `
+            mutation {
+              login(input: {
+                email:"${testUser.email}",
+                password:"${testUser.password}",
+              }) {
+                ok
+                error
+                token
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect(res => {
+          const {
+            body: {
+              data: { login },
+            },
+          } = res;
+          expect(login.ok).toBeTruthy();
+          expect(login.error).toBeNull();
+          expect(login.token).toEqual(expect.any(String));
+          token = login.token;
+        });
+    });
+
+    it('should not be able to login with wring credentials', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `
+          mutation {
+            login(input: {
+              email:"${testUser.email}",
+              password:"222222",
+            }) {
+              ok
+              error
+              token
+            }
+          }
+        `,
+        })
+        .expect(200)
+        .expect(res => {
+          const {
+            body: {
+              data: { login },
+            },
+          } = res;
+          expect(login.ok).toBeFalsy();
+          expect(login.error).toBe('Wrong password');
+          expect(login.token).toBeNull();
+        });
+    });
+  });
+
   it.todo('userProfile');
-  it.todo('login');
   it.todo('me');
   it.todo('verifyEmail');
   it.todo('editProfile');
