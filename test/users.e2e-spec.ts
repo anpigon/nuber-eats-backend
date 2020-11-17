@@ -221,20 +221,66 @@ describe('UserModule (e2e)', () => {
           const {
             body: {
               data: {
-                userProfile: {
-                  ok,
-                  error,
-                },
+                userProfile: { ok, error },
               },
             },
           } = res;
           expect(ok).toBeFalsy();
-          expect(error).toBe("User Not Found");
+          expect(error).toBe('User Not Found');
         });
     });
   });
 
-  it.todo('me');
-  it.todo('verifyEmail');
+  describe('me', () => {
+    it('should find my profile', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .set('X-JWT', token)
+        .send({
+          query: `
+            {
+              me {
+                email
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect(res => {
+          const {
+            body: {
+              data: {
+                me: { email },
+              },
+            },
+          } = res;
+          expect(email).toBe(testUser.email);
+        });
+    });
+    it('should not allow logged out user', () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `
+            {
+              me {
+                email
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect(res => {
+          const {
+            body: { errors },
+          } = res;
+          const [error] = errors;
+          expect(error.message).toBe('Unauthorized');
+        });
+    });
+  });
+
   it.todo('editProfile');
+  
+  it.todo('verifyEmail');
 });
