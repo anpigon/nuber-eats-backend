@@ -1,5 +1,5 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
-import { IsString, Length } from 'class-validator';
+import { IsString, Length, MinLength } from 'class-validator';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
@@ -12,7 +12,7 @@ export class Restaurant extends CoreEntity {
   @Field(() => String)
   @Column()
   @IsString()
-  @Length(5)
+  @MinLength(5)
   name: string;
 
   @Field()
