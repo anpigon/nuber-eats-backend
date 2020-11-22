@@ -18,9 +18,9 @@ import {
 import { Restaurant } from 'src/restaurants/entities/restaurants.entity';
 
 export enum UserRole {
-  Owner = 'OWNER',
-  Client = 'CLIENT',
-  Delivery = 'DELIVERY',
+  Owner = 'Owner',
+  Client = 'Client',
+  Delivery = 'Delivery',
 }
 
 registerEnumType(UserRole, { name: 'UserRole' });
