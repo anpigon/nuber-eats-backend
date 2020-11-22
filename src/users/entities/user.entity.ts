@@ -17,15 +17,15 @@ import {
 } from 'class-validator';
 import { Restaurant } from 'src/restaurants/entities/restaurants.entity';
 
-enum UserRole {
-  Owner,
-  Client,
-  Delivery,
+export enum UserRole {
+  Owner = 'OWNER',
+  Client = 'CLIENT',
+  Delivery = 'DELIVERY',
 }
 
 registerEnumType(UserRole, { name: 'UserRole' });
 
-@InputType("UserInputType", { isAbstract: true })
+@InputType('UserInputType', { isAbstract: true })
 @ObjectType()
 @Entity()
 export class User extends CoreEntity {
