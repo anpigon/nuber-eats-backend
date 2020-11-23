@@ -6,6 +6,10 @@ import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
 } from './dtos/create-restaurant.dto';
+import {
+  EditRestaurantInput,
+  EditRestaurantOutput,
+} from './dtos/edit-restaurant.dto';
 import { Category } from './entities/category.entity';
 import { Restaurant } from './entities/restaurants.entity';
 
@@ -45,5 +49,12 @@ export class RestaurantService {
         error: 'Could not create restaurant',
       };
     }
+  }
+
+  editRestaurant(
+    owner: User,
+    editRestaurant: EditRestaurantInput,
+  ): Promise<EditRestaurantOutput> {
+    return null;
   }
 }
