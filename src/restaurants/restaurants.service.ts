@@ -21,6 +21,18 @@ export class RestaurantService {
     @InjectRepository(Category) private readonly category: Repository<Category>,
   ) {}
 
+  async getOrCreateCategory(name: string) {
+    const categoryName = name.trim().toLowerCase();
+    const categorySlug = categoryName.replace(/\s/g, '-');
+    let category = await this.category.findOne({ slug: categorySlug });
+    if (!category) {
+      category = await this.category.save(
+        this.category.create({ slug: categorySlug, name: categoryName }),
+      );
+    }
+    return category
+  }
+
   async createRestaurant(
     owner: User,
     createRestaurantInput: CreateRestaurantInput,
@@ -28,16 +40,7 @@ export class RestaurantService {
     try {
       const newRestaurant = this.restaurants.create(createRestaurantInput);
       newRestaurant.owner = owner;
-      const categoryName = createRestaurantInput.categoryName
-        .trim()
-        .toLowerCase();
-      const categorySlug = categoryName.replace(/\s/g, '-');
-      let category = await this.category.findOne({ slug: categorySlug });
-      if (!category) {
-        category = await this.category.save(
-          this.category.create({ slug: categorySlug, name: categoryName }),
-        );
-      }
+      const category = await this.getOrCreateCategory(createRestaurantInput.categoryName);
       newRestaurant.category = category;
       await this.restaurants.save(newRestaurant);
       return {
@@ -51,10 +54,29 @@ export class RestaurantService {
     }
   }
 
-  editRestaurant(
+  async editRestaurant(
     owner: User,
-    editRestaurant: EditRestaurantInput,
+    editRestaurantInput: EditRestaurantInput,
   ): Promise<EditRestaurantOutput> {
-    return null;
+    try {
+      const restaurant = await this.restaurants.findOne(
+        editRestaurantInput.restaurantId,
+        // { loadRelationIds: true },
+      );
+      if (!restaurant) {
+        return { ok: false, error: 'Restaurant not found' };
+      }
+      if (restaurant.ownerId !== owner.id) {
+        return {
+          ok: false,
+          error: "You can't a restaurant that you don't own.",
+        };
+      }
+      
+
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: 'Could not edit Restaurant' };
+    }
   }
 }
