@@ -19,6 +19,7 @@ import { Category } from './restaurants/entities/category.entity';
 import { Restaurant } from './restaurants/entities/restaurants.entity';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { AuthModule } from './auth/auth.module';
+import { Dish } from './restaurants/entities/dish.entity';
 
 @Module({
   imports: [
@@ -51,7 +52,7 @@ import { AuthModule } from './auth/auth.module';
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV === 'dev',
-      entities: [User, Verification, Category, Restaurant],
+      entities: [User, Verification, Category, Restaurant, Dish],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
