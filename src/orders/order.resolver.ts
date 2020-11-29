@@ -56,17 +56,22 @@ export class OrderResolver {
   }
 
   @Mutation(() => Boolean)
-  @Role(['Any'])
-  potatoReady() {
-    this.pubSub.publish('hotPotato', { readyPotato: 'your potato is ready.' });
+  async potatoReady(@Args('potatoId') potatoId: number) {
+    this.pubSub.publish('hotPotato', {
+      readyPotato: potatoId,
+    });
     return true;
   }
 
   // ref: https://github.com/apollographql/graphql-subscriptions
   // ref: https://github.com/davidyaha/graphql-redis-subscriptions
-  @Subscription(() => String)
+  @Subscription(() => String, {
+    filter: ({ readyPotato }, { potatoId }) => {
+      return readyPotato === potatoId;
+    },
+  })
   @Role(['Any'])
-  readyPotato(@AuthUser() user: User) {
+  readyPotato(@Args('potatoId') potatoId: number) {
     return this.pubSub.asyncIterator('hotPotato');
   }
 }
