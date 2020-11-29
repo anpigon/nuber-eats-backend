@@ -69,6 +69,9 @@ export class OrderResolver {
     filter: ({ readyPotato }, { potatoId }) => {
       return readyPotato === potatoId;
     },
+    resolve: ({ readyPotato }) => {
+      return `Your potato with the id ${readyPotato}`;
+    },
   })
   @Role(['Any'])
   readyPotato(@Args('potatoId') potatoId: number) {
