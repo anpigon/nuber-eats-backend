@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Dish } from 'src/restaurants/entities/dish.entity';
+import { Dish, DishOption } from 'src/restaurants/entities/dish.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurants.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -32,11 +32,13 @@ export class OrderService {
           error: 'Restaurant not found',
         };
       }
-      console.log(items);
-      items.forEach(async item => {
+      for (const item of items) {
         const dish = await this.dishes.findOne(item.dishId);
         if (!dish) {
-          // abort this while thing
+          return {
+            ok: false,
+            error: 'Dish not found',
+          };
         }
         await this.orderItems.save(
           this.orderItems.create({
@@ -44,13 +46,33 @@ export class OrderService {
             options: item.options,
           }),
         );
-      });
-      const order = await this.orders.save(
-        this.orders.create({
-          customer,
-          restaurant,
-        }),
-      );
+        console.log(`Dish price: ${dish.price}`);
+        for (const itemOption of item.options) {
+          const dishOption = dish.options.find(
+            dishOption => dishOption.name === itemOption.name,
+          );
+          if (dishOption) {
+            if (dishOption.extra) {
+              console.log(`$USD + ${dishOption.extra}`);
+            } else {
+              const dishOptionChoice = dishOption.choices.find(
+                optionChoice => optionChoice.name === itemOption.choice,
+              );
+              if (dishOptionChoice) {
+                if (dishOptionChoice.extra) {
+                  console.log(`$USD + ${dishOptionChoice.extra}`);
+                }
+              }
+            }
+          }
+        }
+      }
+      // const order = await this.orders.save(
+      //   this.orders.create({
+      //     customer,
+      //     restaurant,
+      //   }),
+      // );
       return { ok: true };
     } catch (error) {
       return {
