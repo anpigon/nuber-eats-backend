@@ -5,7 +5,7 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
 import {
@@ -18,6 +18,7 @@ import {
 import { Restaurant } from 'src/restaurants/entities/restaurants.entity';
 import { Dish } from 'src/restaurants/entities/dish.entity';
 import { Order } from 'src/orders/entities/order.entity';
+import { Payment } from 'src/payments/entities/payment.entity';
 
 export enum UserRole {
   Owner = 'Owner',
@@ -75,6 +76,13 @@ export class User extends CoreEntity {
     order => order.driver,
   )
   rides: Order[];
+
+  @Field(() => [Payment])
+  @OneToMany(
+    () => Payment,
+    payment => payment.user,
+  )
+  payments: Payment[];
 
   @BeforeInsert()
   @BeforeUpdate()
