@@ -1,11 +1,10 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { Order } from 'src/orders/entities/order.entity';
 import { Restaurant } from 'src/restaurants/entities/restaurants.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
-@InputType()
+@InputType('PaymentInputType', { isAbstract: true })
 @ObjectType()
 @Entity()
 export class Payment extends CoreEntity {
