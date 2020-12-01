@@ -5,7 +5,14 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
 import {
@@ -81,6 +88,7 @@ export class User extends CoreEntity {
   @OneToMany(
     () => Payment,
     payment => payment.user,
+    { eager: true },
   )
   payments: Payment[];
 
