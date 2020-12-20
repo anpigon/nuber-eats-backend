@@ -9,7 +9,7 @@ import {
   PUB_SUB,
 } from 'src/common/common.constants';
 import { Dish, DishOption } from 'src/restaurants/entities/dish.entity';
-import { Restaurant } from 'src/restaurants/entities/restaurants.entity';
+import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { User, UserRole } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateOrderInput, CreateOrderOutput } from './dtos/create-order.dto';

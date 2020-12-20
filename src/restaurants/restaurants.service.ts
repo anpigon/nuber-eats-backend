@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { Like, Raw, Repository } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import { AllCategoriesOutput } from './dtos/all-categories.dto';
 import { CategoryInput, CategoryOutput } from './dtos/category.dto';
 import { CreateDishInput, CreateDishOutput } from './dtos/create-dish.dto';
@@ -16,6 +16,8 @@ import {
   EditRestaurantInput,
   EditRestaurantOutput,
 } from './dtos/edit-restaurant.dto';
+import { MyRestaurantInput, MyRestaurantOutput } from './dtos/my-restaurant';
+import { MyRestaurantsOutput } from './dtos/my-restaurants.dto';
 import { RestaurantInput, RestaurantOutput } from './dtos/restaurant.dto';
 import { RestaurantsInput, RestaurantsOutput } from './dtos/restaurants.dto';
 import {
@@ -24,7 +26,7 @@ import {
 } from './dtos/search-restaurant.dto';
 import { Category } from './entities/category.entity';
 import { Dish } from './entities/dish.entity';
-import { Restaurant } from './entities/restaurants.entity';
+import { Restaurant } from './entities/restaurant.entity';
 import { CategoryRepository } from './repositories/category.repository';
 
 @Injectable()
@@ -177,14 +179,15 @@ export class RestaurantService {
 
   async allRestaurants({ page }: RestaurantsInput): Promise<RestaurantsOutput> {
     try {
+      const take = 3;
       const [results, totalResults] = await this.restaurants.findAndCount({
-        skip: (page - 1) * 25,
-        take: 25,
+        take,
+        skip: (page - 1) * take,
         order: {
           isPromoted: 'DESC',
         },
       });
-      const totalPages = Math.ceil(totalResults / 25);
+      const totalPages = Math.ceil(totalResults / take);
       return {
         ok: true,
         results,
@@ -318,6 +321,41 @@ export class RestaurantService {
       };
     } catch (error) {
       return { ok: false, error: 'Could not delete dish' };
+    }
+  }
+
+  async myRestaurants(owner: User): Promise<MyRestaurantsOutput> {
+    try {
+      const restaurants = await this.restaurants.find({ owner });
+      return {
+        restaurants,
+        ok: true,
+      };
+    } catch {
+      return {
+        ok: false,
+        error: 'Could not find restaurants.',
+      };
+    }
+  }
+  async myRestaurant(
+    owner: User,
+    { id }: MyRestaurantInput,
+  ): Promise<MyRestaurantOutput> {
+    try {
+      const restaurant = await this.restaurants.findOne(
+        { owner, id },
+        { relations: ['menu', 'orders'] },
+      );
+      return {
+        restaurant,
+        ok: true,
+      };
+    } catch {
+      return {
+        ok: false,
+        error: 'Could not find restaurant',
+      };
     }
   }
 }

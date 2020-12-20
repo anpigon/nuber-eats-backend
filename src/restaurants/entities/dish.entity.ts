@@ -3,7 +3,7 @@ import { IsNumber, IsString, Length } from 'class-validator';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { Column, Entity, ManyToMany, ManyToOne, RelationId } from 'typeorm';
-import { Restaurant } from './restaurants.entity';
+import { Restaurant } from './restaurant.entity';
 
 @InputType('DishChoiceInputType', { isAbstract: true })
 @ObjectType()

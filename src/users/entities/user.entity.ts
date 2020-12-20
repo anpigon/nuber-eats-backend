@@ -22,7 +22,7 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
-import { Restaurant } from 'src/restaurants/entities/restaurants.entity';
+import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 import { Dish } from 'src/restaurants/entities/dish.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { Payment } from 'src/payments/entities/payment.entity';
