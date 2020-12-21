@@ -3,7 +3,7 @@ import * as Joi from 'joi';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import {ScheduleModule} from '@nestjs/schedule'
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { UsersModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
@@ -43,6 +43,9 @@ import { UploadsModule } from './uploads/uploads.module';
         MAILGUN_API_KEY: Joi.string().required(),
         MAILGUN_DOMAIN_NAME: Joi.string().required(),
         MAILGUN_FROM_EMAIL: Joi.string().required(),
+        AWS_KEY: Joi.string().required(),
+        AWS_SECRET: Joi.string().required(),
+        BUCKET_NAME: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({
@@ -62,7 +65,7 @@ import { UploadsModule } from './uploads/uploads.module';
         Dish,
         Order,
         OrderItem,
-        Payment
+        Payment,
       ],
     }),
     GraphQLModule.forRoot({
