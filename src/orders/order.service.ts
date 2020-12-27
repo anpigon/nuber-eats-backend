@@ -95,7 +95,7 @@ export class OrderService {
       await this.pubSub.publish(NEW_PENDING_ORDER, {
         pendingOrders: { order, ownerId: restaurant.ownerId },
       });
-      return { ok: true, orderId: order.id  };
+      return { ok: true, orderId: order.id };
     } catch (error) {
       return {
         ok: false,
@@ -190,9 +190,7 @@ export class OrderService {
     { id: orderId, status }: EditOrderInput,
   ): Promise<EditOrderOutput> {
     try {
-      const order = await this.orders.findOne(orderId, {
-        relations: ['restaurant', 'customer', 'driver'],
-      });
+      const order = await this.orders.findOne(orderId);
       if (!order) {
         return {
           ok: false,
@@ -201,7 +199,10 @@ export class OrderService {
       }
 
       if (!this.canSeeOrder(user, order)) {
-        return { ok: false, error: "You can't see that." };
+        return {
+          ok: false,
+          error: "You can't see that.",
+        };
       }
 
       let canEdit = true;
@@ -228,27 +229,27 @@ export class OrderService {
         };
       }
 
-      const newOrder = await this.orders.save([
+      await this.orders.save([
         {
           id: orderId,
           status,
         },
       ]);
+      const newOrder = { ...order, status };
       if (user.role === UserRole.Owner) {
         if (status === OrderStatus.Cooked) {
           await this.pubSub.publish(NEW_COOKED_ORDER, {
-            cookOrders: { ...order, status },
+            cookedOrders: newOrder,
           });
         }
       }
-      await this.pubSub.publish(NEW_ORDER_UPDATE, {
-        orderUpdates: newOrder,
-      });
+      await this.pubSub.publish(NEW_ORDER_UPDATE, { orderUpdates: newOrder });
 
       return {
         ok: true,
       };
     } catch (error) {
+      console.error(error);
       return {
         ok: false,
         error: 'Could not edit order',

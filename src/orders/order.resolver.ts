@@ -85,10 +85,11 @@ export class OrderResolver {
       { input }: { input: OrderUpdatesInput },
       { user }: { user: User },
     ) => {
+      console.log('order', order)
       if (
         order.driverId !== user.id &&
         order.customerId !== user.id &&
-        order.restaurant.ownerId !== user.id
+        order.restaurant?.ownerId !== user.id
       ) {
         return false;
       }
