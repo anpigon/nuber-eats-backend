@@ -23,16 +23,19 @@ import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/entities/payment.entity';
 import { UploadsModule } from './uploads/uploads.module';
 
+const isDev = process.env.NODE_ENV === 'development';
+const isProd = process.env.NODE_ENV === 'production';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
-      ignoreEnvFile: process.env.NODE_ENV === 'prod',
+      envFilePath: isDev ? '.env.dev' : '.env.test',
+      ignoreEnvFile: isProd,
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
-          .valid('dev', 'prod', 'test')
-          .default('dev'),
+          .valid('development', 'production', 'test')
+          .default('development'),
         PORT: Joi.number().default(3000),
         DB_HOST: Joi.string().required(),
         DB_PORT: Joi.number().required(),
@@ -55,8 +58,8 @@ import { UploadsModule } from './uploads/uploads.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      synchronize: process.env.NODE_ENV !== 'prod',
-      logging: process.env.NODE_ENV === 'dev',
+      synchronize: !isProd,
+      logging: isDev,
       entities: [
         User,
         Verification,
